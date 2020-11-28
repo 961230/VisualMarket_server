@@ -11,31 +11,19 @@ var conn = db_config.init();
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended : true}));
 
-const upload = multer({ dest: 'uploads/'})
-app.use('image', express.static('./uploads'));
+const Storage = multer.diskStorage({
+    destination(req, file, callback){
+        callback(null, './uploads')
+    },
+    filename(req, file, callback){
+        callback(null, `${file.fieldname}_${Date.now()}_${file.originalname}`)
+    },
+})
 
-app.get('/api/user', (req, res) => {
-    res.send([
-        {
-            'id' : 1,
-            'userID' : 'seho100',
-            'userPassword' : 'sop8377',
-            'email' : 'seho4815@naver.com'
-        },
-        {
-            'id' : 2,
-            'userID' : 'sunho100',
-            'userPassword' : 'sop8377',
-            'email' : 'suno100@naver.com'
-        },
-        {
-            'id' : 3,
-            'userID' : 'sungho100',
-            'userPassword' : 'sop8377',
-            'email' : 'sungho100@naver.com'
-        }
-    ]);
-});
+const upload = multer({ storage: Storage})
+app.use('/image', express.static('./uploads'));
+
+
 
 app.post('/api/members', (req, res) => {
     var body = req.body;
@@ -137,9 +125,53 @@ app.post('/api/upload',upload.single('img'), (req, res) => {
     console.log(sql);
     conn.query(sql, params, function(err){
         if(err) console.log('Insertion failed.. ' + err);
-        else res.send(rows);
+        
+        //else res.send(rows);
     })
 });
 
+app.get('/api/goods', (req,res) => {
+    var sql = 'SELECT * FROM goods';
+    
+    console.log(sql);
+    console.log(req.query);
+    conn.query(sql, function (err, rows, fields){
+        if(err) console.log('Load goods failed..' + err);
+        else{
+            console.log('sql 결과 : '+JSON.stringify(rows))
+            if(rows) res.send(rows);
+        }
+    })
+})
+
+app.get('/api/goods/detail', (req,res) => {
+    var sql = 'SELECT * FROM goods WHERE Gno = ?';
+    var params = [req.query.gno];
+    console.log(sql);
+    console.log(req.query);
+    conn.query(sql,params,  function (err, rows, fields){
+        if(err) console.log('Load goods failed..' + err);
+        else{
+            console.log('sql 결과 : '+JSON.stringify(rows))
+            if(rows) res.send(rows);
+        }
+    })
+})
+
+app.put('/api/goods', (req, res) => {
+    //console.log(body);
+    var sql = 'UPDATE goods SET state = ? WHERE Gno = ?';
+    var params = [false, req.query.gno];
+    console.log(sql);
+    console.log(params);
+    console.log(req.query);
+    conn.query(sql,params, function (err, rows, fields){
+        if(err) console.log('Goods state update failed..' + err);
+        else{
+            console.log('sql 결과 : '+JSON.stringify(rows))
+            if(rows) res.send(rows);
+        }
+    })
+})
 
 app.listen(port, () => console.log(`Listening on port ${port}`));
