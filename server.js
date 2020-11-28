@@ -38,6 +38,29 @@ app.post('/api/members', (req, res) => {
     })
 });
 
+app.post('/api/board/upload', (req, res) => {
+    var body = req.body;
+    console.log(body);
+
+    var sql = 'INSERT INTO board VALUES(null, ?, ?, ?, ?)';
+    var params = [body.stu_id, body.title, body.contents, Boolean(body.anony)];
+    console.log(sql);
+    conn.query(sql, params, function(err){
+        if(err) console.log('Insertion board failed.. ' + err);
+        else res.redirect('/api/board/upload');
+    })
+});
+
+app.delete('api/jjim', (req,res) => {
+    var body = req.body;
+    var sql = 'DELETE FROM jjim WHERE stu_id=? and Gno=?';
+    var params = [body.stu_id, body.gno];
+    conn.query(sql, params, function(err){
+        if(err) console.log('Delete from jjim failed...', +err);
+        else res.redirect('api/jjim');
+    })
+})
+
 app.get('/api/members', (req, res) => {
     //console.log(body);
     var sql = 'SELECT * FROM members WHERE mem_id = ? and mem_password = ?';
@@ -46,6 +69,21 @@ app.get('/api/members', (req, res) => {
     
     conn.query(sql,params, function (err, rows, fields){
         if(err) console.log('Login failed..' + err);
+        else{
+            console.log('sql 결과 : '+JSON.stringify(rows))
+            res.send(rows);
+        }
+    })
+})
+
+app.get('/api/StuID', (req, res) => {
+    //console.log(body);
+    var sql = 'SELECT stu_id FROM members WHERE mem_id = ?';
+    var params = [req.query.current_id];
+    console.log(sql);
+    
+    conn.query(sql,params, function (err, rows, fields){
+        if(err) console.log('load stu_id failed..' + err);
         else{
             console.log('sql 결과 : '+JSON.stringify(rows))
             res.send(rows);
@@ -130,6 +168,7 @@ app.post('/api/upload',upload.single('img'), (req, res) => {
     })
 });
 
+
 app.get('/api/goods', (req,res) => {
     var sql = 'SELECT * FROM goods';
     
@@ -158,6 +197,18 @@ app.get('/api/goods/detail', (req,res) => {
     })
 })
 
+app.get('/api/board', (req,res) => {
+    var sql = 'SELECT * FROM board';
+    console.log(sql);
+    conn.query(sql,  function (err, rows, fields){
+        if(err) console.log('Load board failed..' + err);
+        else{
+            console.log('sql 결과 : '+JSON.stringify(rows))
+            if(rows) res.send(rows);
+        }
+    })
+})
+
 app.put('/api/goods', (req, res) => {
     //console.log(body);
     var sql = 'UPDATE goods SET state = ? WHERE Gno = ?';
@@ -167,6 +218,23 @@ app.put('/api/goods', (req, res) => {
     console.log(req.query);
     conn.query(sql,params, function (err, rows, fields){
         if(err) console.log('Goods state update failed..' + err);
+        else{
+            console.log('sql 결과 : '+JSON.stringify(rows))
+            if(rows) res.send(rows);
+        }
+    })
+})
+
+app.post('/api/jjim', (req, res) => {
+    //console.log(body);
+    var body = req.body;
+    var sql = 'INSERT INTO jjim VALUES (?, ?)';
+    var params = [body.stu_id, body.gno];
+    console.log(sql);
+    console.log(params);
+    console.log(req.query);
+    conn.query(sql,params, function (err, rows, fields){
+        if(err) console.log('Insert jjim failed..' + err);
         else{
             console.log('sql 결과 : '+JSON.stringify(rows))
             if(rows) res.send(rows);
