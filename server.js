@@ -168,6 +168,34 @@ app.post('/api/upload',upload.single('img'), (req, res) => {
     })
 });
 
+app.post('/api/comments',(req, res) => {
+    var body = req.body;
+    console.log(body);
+
+    var sql = 'INSERT INTO comments VALUES(null, ?, ?, default, ?, ?)';
+    var params = [body.stu_id, 1, body.comment, body.bno];
+    console.log(sql);
+    conn.query(sql, params, function(err){
+        if(err) console.log('Insertion failed.. ' + err);
+        
+        //else res.send(rows);
+    })
+});
+
+app.get('/api/comments', (req,res) => {
+    var sql = 'SELECT * FROM comments';
+    
+    console.log(sql);
+    console.log(req.query);
+    conn.query(sql, function (err, rows, fields){
+        if(err) console.log('Load comments failed..' + err);
+        else{
+            console.log('sql 결과 : '+JSON.stringify(rows))
+            if(rows) res.send(rows);
+        }
+    })
+})
+
 
 app.get('/api/goods', (req,res) => {
     var sql = 'SELECT * FROM goods';
@@ -202,6 +230,19 @@ app.get('/api/board', (req,res) => {
     console.log(sql);
     conn.query(sql,  function (err, rows, fields){
         if(err) console.log('Load board failed..' + err);
+        else{
+            console.log('sql 결과 : '+JSON.stringify(rows))
+            if(rows) res.send(rows);
+        }
+    })
+})
+
+app.get('/api/JjimList', (req,res) => {
+    var sql = 'SELECT * FROM jjim WHERE stu_id = ?';
+    console.log(sql);
+    var params = [req.query.id];
+    conn.query(sql,params,  function (err, rows, fields){
+        if(err) console.log('Load jjim failed..' + err);
         else{
             console.log('sql 결과 : '+JSON.stringify(rows))
             if(rows) res.send(rows);
