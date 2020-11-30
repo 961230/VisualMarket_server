@@ -51,7 +51,7 @@ app.post('/api/board/upload', (req, res) => {
     })
 });
 
-app.delete('api/jjim', (req,res) => {
+app.delete('/api/jjim', (req,res) => {
     var body = req.body;
     var sql = 'DELETE FROM jjim WHERE stu_id=? and Gno=?';
     var params = [body.stu_id, body.gno];
@@ -69,6 +69,21 @@ app.get('/api/members', (req, res) => {
     
     conn.query(sql,params, function (err, rows, fields){
         if(err) console.log('Login failed..' + err);
+        else{
+            console.log('sql 결과 : '+JSON.stringify(rows))
+            res.send(rows);
+        }
+    })
+})
+
+app.get('/api/goods/like', (req, res) => {
+    //console.log(body);
+    var sql = 'SELECT * FROM jjim WHERE stu_id = ? and Gno = ?';
+    var params = [req.query.stuid, parseInt(req.query.gno)];
+    console.log(sql);
+    console.log(req.query);
+    conn.query(sql,params, function (err, rows, fields){
+        if(err) console.log('Load jjim like failed..' + err);
         else{
             console.log('sql 결과 : '+JSON.stringify(rows))
             res.send(rows);
@@ -138,6 +153,21 @@ app.put('/api/members/password', (req, res) => {
     })
 })
 
+app.put('/api/newPassword', (req, res) => {
+    //console.log(body);
+    var sql = 'UPDATE members SET mem_password = ? WHERE mem_id = ?';
+    var params = [req.query.password,req.query.id];
+    console.log(sql);
+    console.log(params);
+    conn.query(sql,params, function (err, rows, fields){
+        if(err) console.log('password update failed..' + err);
+        else{
+            console.log('sql 결과 : '+JSON.stringify(rows))
+            if(rows) res.send(rows);
+        }
+    })
+})
+
 app.get('/api/members-studentID', (req, res) => {
     //console.log(body);
     var sql = 'SELECT * FROM members WHERE mem_id = ?';
@@ -183,12 +213,13 @@ app.post('/api/comments',(req, res) => {
 });
 
 app.get('/api/comments', (req,res) => {
-    var sql = 'SELECT * FROM comments';
-    
+    var body = req.query;
+    var sql = 'SELECT * FROM comments WHERE bno=?';
+    var params = [parseInt(body.bno)];
     console.log(sql);
     console.log(req.query);
-    conn.query(sql, function (err, rows, fields){
-        if(err) console.log('Load comments failed..' + err);
+    conn.query(sql,params, function (err, rows, fields){
+        if(err) console.log('Load specify comments failed..' + err);
         else{
             console.log('sql 결과 : '+JSON.stringify(rows))
             if(rows) res.send(rows);
@@ -204,6 +235,20 @@ app.get('/api/goods', (req,res) => {
     console.log(req.query);
     conn.query(sql, function (err, rows, fields){
         if(err) console.log('Load goods failed..' + err);
+        else{
+            console.log('sql 결과 : '+JSON.stringify(rows))
+            if(rows) res.send(rows);
+        }
+    })
+})
+
+app.get('/api/Jjimgoods', (req,res) => {
+    var sql = 'SELECT * FROM goods WHERE gno = ?';
+    var params = [req.query.gno];
+    console.log(sql);
+    console.log(req.query);
+    conn.query(sql,params, function (err, rows, fields){
+        if(err) console.log('Load jjim goods failed..' + err);
         else{
             console.log('sql 결과 : '+JSON.stringify(rows))
             if(rows) res.send(rows);
